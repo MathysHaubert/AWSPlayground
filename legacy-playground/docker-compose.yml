@@ -1,0 +1,29 @@
+services:
+  localstack:
+    image: ministackorg/ministack
+    ports:
+      - "4566:4566"
+    networks:
+      - proxy
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.localstack.rule=Host(`localstack.localhost`)"
+      - "traefik.http.routers.localstack.entrypoints=web"
+      - "traefik.http.services.localstack.loadbalancer.server.port=4566"
+
+  stackport:
+    image: davireis/stackport:latest
+    networks:
+      - proxy
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stackport.rule=Host(`stackport.localhost`)"
+      - "traefik.http.routers.stackport.entrypoints=websecure"
+      - "traefik.http.routers.stackport.tls=true"
+      - "traefik.http.services.stackport.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true
