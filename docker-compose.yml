@@ -1,43 +1,28 @@
 services:
   localstack:
-    container_name: '${LOCALSTACK_DOCKER_NAME:-localstack-main}'
-    image: localstack/localstack
+    image: ministackorg/ministack
+    ports:
+      - "4566:4566"
     networks:
       - proxy
+      - default
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      
-      # ⭐ Route principale
       - "traefik.http.routers.localstack.rule=Host(`localstack.localhost`)"
       - "traefik.http.routers.localstack.entrypoints=web"
       - "traefik.http.services.localstack.loadbalancer.server.port=4566"
-      - "traefik.http.routers.localstack.service=localstack"
-      
-      # HTTPS (optionnel mais recommandé)
-      - "traefik.http.routers.localstack-secure.rule=Host(`localstack.localhost`)"
-      - "traefik.http.routers.localstack-secure.entrypoints=websecure"
-      - "traefik.http.routers.localstack-secure.tls=true"
-      - "traefik.http.routers.localstack-secure.service=localstack"
-    
-    ports:
-      - '127.0.0.1:4566:4566'    # LocalStack Gateway
-      - '127.0.0.1:4510-4559:4510-4559'  # external services
-    
-    environment:
-      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN:-}  # optionnel
-      - LOCALSTACK_CONFIGURATION_URL=${LOCALSTACK_CONFIGURATION_URL:-}
-      - DEBUG=${DEBUG:-0}
-      - PERSISTENCE=${PERSISTENCE:-0}
-      - LOCALSTACK_HOST=localhost
-      - DNS=8.8.8.8
-    
-    volumes:
-      - 'localstack_volume:/var/lib/localstack'
-      - '/var/run/docker.sock:/var/run/docker.sock:ro'
 
-volumes:
-  localstack_volume:
+  stackport:
+    image: davireis/stackport:latest
+    networks:
+      - proxy
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stackport.rule=Host(`stackport.localhost`)"
+      - "traefik.http.routers.stackport.entrypoints=websecure"
+      - "traefik.http.routers.stackport.tls=true"
+      - "traefik.http.services.stackport.loadbalancer.server.port=8080"
 
 networks:
   proxy:
