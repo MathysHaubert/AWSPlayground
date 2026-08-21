@@ -1,17 +1,24 @@
 services:
   localstack:
-    image: ministackorg/ministack
+    image: localstack/localstack-pro
     ports:
-      - "4566:4566"
+     - "4566:4566"
+    environment:
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
+      - ENFORCE_IAM=1
+      - DEBUG=1
+      - PERSISTENCE=1
     networks:
       - proxy
       - default
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.localstack.rule=Host(`localstack.localhost`)"
+      - "traefik.http.routers.locatstack.rule=Host(`localstack.localhost`)"
       - "traefik.http.routers.localstack.entrypoints=web"
       - "traefik.http.services.localstack.loadbalancer.server.port=4566"
-
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  
   stackport:
     image: davireis/stackport:latest
     networks:
